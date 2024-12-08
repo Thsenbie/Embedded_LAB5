@@ -82,7 +82,7 @@ typedef enum {
     TIME_DISPLAY,
     TIME_ADJUST,
     TIMER_MODE,
-	TIME_UPDATE
+    TIME_UPDATE
 } ClockMode;
 
 ClockMode currentMode = TIME_DISPLAY;
@@ -313,6 +313,7 @@ uint8_t date;
 uint8_t month;
 uint8_t year;
 
+// Displays the seconds on the LCD
 void displaySec(int num, int isBlink) {
 	if (isBlink) {
 	    counter = (counter + 1)%10;
@@ -328,6 +329,7 @@ void displaySec(int num, int isBlink) {
 	}
 }
 
+// Displays the minutes on the LCD
 void displayMin(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -343,6 +345,7 @@ void displayMin(int num, int isBlink) {
 	}
 }
 
+// Displays the hours on the LCD
 void displayHour(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -358,7 +361,7 @@ void displayHour(int num, int isBlink) {
 	}
 }
 
-
+// Displays the day of the week on the LCD
 void displayDay(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -374,6 +377,7 @@ void displayDay(int num, int isBlink) {
 	}
 }
 
+// Displays the date on the LCD
 void displayDate(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -389,6 +393,7 @@ void displayDate(int num, int isBlink) {
 	}
 }
 
+// Displays the month on the LCD
 void displayMonth(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -404,6 +409,7 @@ void displayMonth(int num, int isBlink) {
 	}
 }
 
+// Displays the year on the LCD
 void displayYear(int num, int isBlink) {
 	if (isBlink) {
 		counter = (counter + 1)%10;
@@ -419,7 +425,7 @@ void displayYear(int num, int isBlink) {
 	}
 }
 
-
+// Edits and displays all time-related fields (hours, minutes, seconds, day, date, month, year) on the LCD.
 void editTime(uint8_t hours, uint8_t min, uint8_t sec, uint8_t day, uint8_t date, uint8_t month, uint8_t year){
 	lcd_ShowIntNum(70, 100, hours, 2, GREEN, BLACK, 24);
 	lcd_ShowIntNum(110, 100, min, 2, GREEN, BLACK, 24);
@@ -430,7 +436,7 @@ void editTime(uint8_t hours, uint8_t min, uint8_t sec, uint8_t day, uint8_t date
 	lcd_ShowIntNum(150, 130, year, 2, YELLOW, BLACK, 24);
 }
 
-
+// Displays the current time (hours, minutes, seconds, day, date, month, year) from the DS3231 RTC on the LCD
 void displayTime(){
 	lcd_ShowIntNum(70, 100, ds3231_hours, 2, GREEN, BLACK, 24);
 	lcd_ShowIntNum(110, 100, ds3231_min, 2, GREEN, BLACK, 24);
@@ -441,22 +447,23 @@ void displayTime(){
 	lcd_ShowIntNum(150, 130, ds3231_year, 2, YELLOW, BLACK, 24);
 }
 
+// Adjusts the time (hours, minutes, seconds, day, date, month, year) based on the current adjust mode.
 void adjustTime() {
-
     // Check for button presses
 	if (flag_timer2) {
 		counter++;
 	}
     if (isButtonUp() && flag == 0) {
 
-        // Increment current field
+          // Adjust the time field based on the current adjust mode
     	if (adjustMode == 0) {
-			sec = (sec + 1) % 60;
+			sec = (sec + 1) % 60;  // Adjust seconds
         } else if (adjustMode == 1) {
-            min = (min + 1) % 60;
+            min = (min + 1) % 60;  // Adjust minutes
         } else if (adjustMode == 2) {
-            hours = (hours + 1) % 24;
+            hours = (hours + 1) % 24;  // Adjust hours
         } else if (adjustMode == 3) {
+        	// Adjust date and weekday
         	date = (date + 1) % 30;
 			if (!date) {
 				date = 30;}
@@ -466,11 +473,13 @@ void adjustTime() {
 			else if (day == 1) {
 				day = 8;}
         } else if (adjustMode == 4) {
+        	// Adjust month
         	month = (month + 1) % 12;
         	if (!month) {
         		month = 12;
         	}
-        }else if (adjustMode == 5) {
+        } else if (adjustMode == 5) {
+        	// Adjust year
         	year = (year + 1) % 100;
         }
     }
@@ -509,6 +518,7 @@ uint8_t timer_month = 0;
 uint8_t timer_year = 0;
   // 0 = hours, 1 = minutes, 2 = seconds
 
+// Sets the timer (hours, minutes, seconds, day, date, month, year) based on the current timer mode.
 void setTimer() {
     // Increment or decrement the current field
 	if (flag_timer2){
@@ -555,6 +565,7 @@ void setTimer() {
 	displayYear(timer_year, timerMode == 5);
 }
 
+// Handles the clock mode functionality, including cycling between modes (Time Adjust, Timer Mode, Time Update).
 void clock_mode(uint32_t currentMillis) {
     // Check if button is pressed and if debounce period has passed
     if (button_count[0] == 1 ) {
@@ -608,7 +619,7 @@ void checkAlarm() {
     }
 }
 
-
+// Updates the time fields (seconds, minutes, hours, days, dates, months, years) by receiving new values via UART and updating the RTC.
 void update_time() {
 uint8_t update_arr[7];
 uint8_t val;
